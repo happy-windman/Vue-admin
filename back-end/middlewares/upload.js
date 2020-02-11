@@ -32,7 +32,9 @@ module.exports = (req,res,next) =>{
     upload(req, res, function (err) {
       console.log(req.body)
       // if(filename){
-      //       fs.unlink(path.resolve(__dirname,'../public/uploads/'+req.body.tempCompanyLogo),(err) => {
+      //   console.log(req.body.tempCompanyLogo)
+      //       fs.unlink(path.resolve(__dirname,'../public/uploads/'+req.body.temCompanyLogo),(err) => {
+      //         console.log('suc');
       //         if (err) {
       //           console.log(err.message)
       //         }

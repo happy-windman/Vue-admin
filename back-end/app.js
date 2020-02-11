@@ -40,7 +40,7 @@ app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/position/findAll',position.findAll);
 app.use('/api/position',positionRouter);
-app.use('/api/news',authMiddlewares,newsRouter);
+// app.use('/api/news',authMiddlewares,newsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

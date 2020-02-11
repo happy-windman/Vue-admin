@@ -3,11 +3,11 @@ const moment = require('moment')
 const path = require('path')
 const fs = require('fs')
 
-var server = require('http').createServer((req,res)=>{
-    res.end('1')
-})
-var io = require('socket.io')(server);
-server.listen('3001','10.9.49.207')
+// var server = require('http').createServer((req, res) => {
+//     res.end('1')
+// })
+// var io = require('socket.io')(server);
+// server.listen('3001', '10.9.49.207')
 
 const findOne = async (req, res, next) => {
     res.set('Content-Type', 'application/json; charset=utf-8')
@@ -50,7 +50,7 @@ const position_add = async (req, res, next) => {
     console.log(data)
     // data.currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
     // data.companyLogo = req.filename
-  
+
     // let { positionName, companyName, city, experience, education, salary, currentTime } = req.body
     let result = await positionsModel.save(data)
     if (result) {
@@ -58,7 +58,7 @@ const position_add = async (req, res, next) => {
             data: JSON.stringify({ message: '添加成功！' })
         })
         io.emit('list', 'abc')
-  
+
     }
     else {
         res.render('fail', {
@@ -70,13 +70,17 @@ const position_add = async (req, res, next) => {
 const position_update = async (req, res, next) => {
     res.set('Content-Type', 'application/json; charset=utf-8')
     let data = req.body
-    console.log(data)
-    data.currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
-    if (req.filename === '') {
+    if (data.companyLogo === '') {
         delete data.companyLogo
-      } else {
-        data.companyLogo = data.companyLogo
-      }
+    } else {
+        console.log(data.temCompanyLogo);
+        fs.unlink(path.resolve(__dirname, '../public/uploads/' + data.temCompanyLogo), (err) => {
+            if (err) {
+                console.log(err.message)
+            }
+        }
+        )
+    }
     let result = await positionsModel.update(data)
 
     if (result) {
@@ -93,15 +97,15 @@ const position_update = async (req, res, next) => {
 
 const position_delete = async (req, res, next) => {
     res.set('Content-Type', 'application/json; charset=utf-8')
-    let {id,companyLogo} = req.body
+    let { id, companyLogo } = req.body
     let result = await positionsModel.remove(id)
     if (result) {
-        fs.unlink(path.resolve(__dirname,'../public/uploads/'+companyLogo),(err) => {
+        fs.unlink(path.resolve(__dirname, '../public/uploads/' + companyLogo), (err) => {
             if (err) {
-              console.log(err.message)
+                console.log(err.message)
             }
-          }
-          )
+        }
+        )
         res.render('succ', {
             data: JSON.stringify({ message: '删除成功！' })
         })
@@ -113,7 +117,7 @@ const position_delete = async (req, res, next) => {
     }
 }
 
-const position_search = async (req,res,next) =>{
+const position_search = async (req, res, next) => {
     res.set('Content-Type', 'application/json; charset=utf-8')
     let data = req.body
     console.log(data)
@@ -136,6 +140,6 @@ module.exports = {
     position_add,
     position_update,
     position_delete,
-   
+
 
 }

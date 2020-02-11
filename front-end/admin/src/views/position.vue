@@ -29,12 +29,20 @@
             :before-upload="handleUpload"
             action="/api/position/upload"
             name="companyLogo"
+            :data="uploadData"
             :on-success="handleSucc"
           >
             <Button icon="ios-cloud-upload-outline">Select the file to upload</Button>
           </Upload>
           <div v-if="file !== null">
             <img :src="insideSrc" width="100px" height="50px" />
+          </div>
+          <div v-if="addOrUpdate=='update'&&file === null">
+            <img
+              :src="'http://localhost:3000/uploads/' + formItem.companyLogo"
+              width="100px"
+              height="50px"
+            />
           </div>
         </FormItem>
         <FormItem label="公司名称" prop="companyName">
@@ -92,13 +100,11 @@
 </template>
 
 <script>
-
 import { get, post, getOne } from "../utils/http";
 import _ from "lodash";
 import moment from "moment";
 export default {
-  
-  inject: ['reload'],
+  inject: ["reload"],
   data() {
     return {
       addOrUpdate: "",
@@ -264,6 +270,9 @@ export default {
         salary: "",
         dateTime: ""
       },
+      uploadData: {
+        temCompanyLogo: ""
+      },
       time: new Date(),
       date: new Date(),
       file: null,
@@ -280,6 +289,7 @@ export default {
           id: _id
         }
       });
+
       let {
         positionName,
         companyName,
@@ -290,7 +300,8 @@ export default {
         salary,
         dateTime
       } = result;
-      (this.formItem = {
+
+      this.formItem = {
         positionName,
         companyName,
         companyLogo,
@@ -299,9 +310,14 @@ export default {
         education,
         salary,
         dateTime,
-        id: _id
-      }),
-        (this.addOrUpdate = "update");
+        id: _id,
+        temCompanyLogo:companyLogo
+      },
+        // console.log(this.formItem)
+        this.uploadData.temCompanyLogo=this.formItem.companyLogo
+        this.addOrUpdate = "update"
+    
+
       this.modal = true;
     },
     handleAdd() {
@@ -315,7 +331,7 @@ export default {
         education: "",
         salary: "",
         dateTime: ""
-      }
+      };
       this.modal = true;
     },
     async remove({ _id, companyLogo, index }) {
@@ -360,10 +376,9 @@ export default {
                 title: "添加成功",
                 desc: "恭喜成功加入一条数据！"
               });
-              // this.$route.path='/position'
-              // this.$router.push(`/position?${new Date().getTime()}`)
-              this.reload();
-              this.modal=false
+
+            this.reload();
+            this.modal = false;
           } else {
             result = await post({
               method: "patch",
@@ -375,7 +390,8 @@ export default {
                 title: "修改成功",
                 desc: "恭喜成功修改一条数据！"
               });
-              this.modal=false
+            this.reload();
+            this.modal = false;
           }
           this.file = null;
         } else {
@@ -390,10 +406,13 @@ export default {
 
     cancel() {},
     handleUpload(file) {
+      console.log(file)
       this.file = file;
+
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = event => {
+        console.log(event)
         this.insideSrc = event.srcElement.result;
       };
     },
@@ -434,7 +453,7 @@ export default {
     }
   },
   async mounted() {
-    console.log( )
+    console.log();
     let result = await get("/api/position/findAll");
 
     this.total = result.total;
